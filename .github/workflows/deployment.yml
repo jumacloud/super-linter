@@ -27,8 +27,6 @@ jobs:
     name: Deploy Docker Image - PROD
     # Set the agent to run on
     runs-on: ubuntu-latest
-    # Only run this on the main repo
-    if: github.repository == 'github/super-linter'
     ##################
     # Load all steps #
     ##################
@@ -37,7 +35,7 @@ jobs:
       # Checkout the code base #
       ##########################
       - name: Checkout Code
-        uses: actions/checkout@v2.3.4
+        uses: actions/checkout@v2
 
       ########################
       # Get the current date #
@@ -51,15 +49,6 @@ jobs:
       - name: Setup BuildX
         uses: docker/setup-buildx-action@v1
 
-      ###############################
-      # Login to DockerHub registry #
-      ###############################
-      - name: Login to DockerHub
-        uses: docker/login-action@v1
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-
       ######################################
       # Login to GitHub Container registry #
       ######################################
@@ -67,8 +56,8 @@ jobs:
         uses: docker/login-action@v1
         with:
           registry: ghcr.io
-          username: ${{ secrets.GCR_USERNAME }}
-          password: ${{ secrets.GCR_TOKEN }}
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.PUSH_GITHUB_CONTAINER }}
 
       ###########################################
       # Build and Push containers to registries #
@@ -84,7 +73,7 @@ jobs:
             BUILD_VERSION=${{ github.sha }}
           push: true
           tags: |
-            github/super-linter:latest
-            github/super-linter:v3
-            ghcr.io/github/super-linter:latest
-            ghcr.io/github/super-linter:v3
+            jumacloud/super-linter:latest
+            jumacloud/super-linter:v1
+            ghcr.io/jumacloud/super-linter:latest
+            ghcr.io/jumacloud/super-linter:v1
