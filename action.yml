@@ -4,7 +4,7 @@ author: 'GitHub'
 description: 'It is a simple combination of various linters, written in bash, to help validate your source code.'
 runs:
   using: 'docker'
-  image: 'docker://ghcr.io/jumacloud/super-linter:v1'
+  image: 'docker://ghcr.io/benrayner/super-linter:latest'
 branding:
   icon: 'check-square'
   color: 'white'
