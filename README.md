@@ -376,4 +376,5 @@ If you would like to help contribute to this **GitHub** Action, please see [CONT
 
 ### License
 
+
 - [MIT License](https://github.com/github/super-linter/blob/master/LICENSE)
