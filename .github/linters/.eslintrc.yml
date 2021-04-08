@@ -38,4 +38,8 @@ plugins:
 #########
 # Rules #
 #########
-rules: {}
+rules:
+  no-empty:
+    - error
+    - allowEmptyCatch
+
