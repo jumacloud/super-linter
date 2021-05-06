@@ -10,7 +10,7 @@
 # Debug Vars                                                     #
 # Define these early, so we can use debug logging ASAP if needed #
 ##################################################################
-RUN_LOCAL="${RUN_LOCAL}"                              # Boolean to see if we are running locally
+# RUN_LOCAL="${RUN_LOCAL}"                            # Boolean to see if we are running locally
 ACTIONS_RUNNER_DEBUG="${ACTIONS_RUNNER_DEBUG:-false}" # Boolean to see even more info (debug)
 
 ##################################################################
@@ -44,37 +44,39 @@ export LOG_ERROR
 # Source Function Files #
 #########################
 # shellcheck source=/dev/null
+source /action/lib/functions/buildFileList.sh # Source the function script(s)
+# shellcheck source=/dev/null
+source /action/lib/functions/detectFiles.sh # Source the function script(s)
+# shellcheck source=/dev/null
+source /action/lib/functions/linterRules.sh # Source the function script(s)
+# shellcheck source=/dev/null
+source /action/lib/functions/linterVersions.sh # Source the function script(s)
+# shellcheck source=/dev/null
 source /action/lib/functions/log.sh # Source the function script(s)
 # shellcheck source=/dev/null
-source /action/lib/functions/buildFileList.sh # Source the function script(s)
+source /action/lib/functions/tapLibrary.sh # Source the function script(s)
+# shellcheck source=/dev/null
+source /action/lib/functions/updateSSL.sh # Source the function script(s)
 # shellcheck source=/dev/null
 source /action/lib/functions/validation.sh # Source the function script(s)
 # shellcheck source=/dev/null
 source /action/lib/functions/worker.sh # Source the function script(s)
-# shellcheck source=/dev/null
-source /action/lib/functions/tapLibrary.sh # Source the function script(s)
-# shellcheck source=/dev/null
-source /action/lib/functions/linterRules.sh # Source the function script(s)
-# shellcheck source=/dev/null
-source /action/lib/functions/detectFiles.sh # Source the function script(s)
-# shellcheck source=/dev/null
-source /action/lib/functions/linterVersions.sh # Source the function script(s)
 
 ###########
 # GLOBALS #
 ###########
 # Default Vars
-DEFAULT_RULES_LOCATION='/action/lib/.automation'          # Default rules files location
-LINTER_RULES_PATH="${LINTER_RULES_PATH:-.github/linters}" # Linter Path Directory
-GITHUB_API_URL='https://api.github.com'                   # GitHub API root url
-VERSION_FILE='/action/lib/functions/linterVersions.txt'   # File to store linter versions
-export VERSION_FILE                                       # Workaround SC2034
+DEFAULT_RULES_LOCATION='/action/lib/.automation'                    # Default rules files location
+LINTER_RULES_PATH="${LINTER_RULES_PATH:-.github/linters}"           # Linter Path Directory
+GITHUB_API_URL="${GITHUB_CUSTOM_API_URL:-"https://api.github.com"}" # GitHub API root url
+VERSION_FILE='/action/lib/functions/linterVersions.txt'             # File to store linter versions
+export VERSION_FILE                                                 # Workaround SC2034
 
 ###############
 # Rules files #
 ###############
 # shellcheck disable=SC2034  # Variable is referenced indirectly
-ANSIBLE_FILE_NAME=".ansible-lint.yml"
+ANSIBLE_FILE_NAME="${ANSIBLE_CONFIG_FILE:-.ansible-lint.yml}"
 # shellcheck disable=SC2034  # Variable is referenced indirectly
 ARM_FILE_NAME=".arm-ttk.psd1"
 # shellcheck disable=SC2034  # Variable is referenced indirectly
@@ -137,6 +139,8 @@ PYTHON_FLAKE8_FILE_NAME="${PYTHON_FLAKE8_CONFIG_FILE:-.flake8}"
 # shellcheck disable=SC2034  # Variable is referenced indirectly
 PYTHON_ISORT_FILE_NAME="${PYTHON_ISORT_CONFIG_FILE:-.isort.cfg}"
 # shellcheck disable=SC2034  # Variable is referenced indirectly
+PYTHON_MYPY_FILE_NAME="${PYTHON_MYPY_CONFIG_FILE:-.mypy.ini}"
+# shellcheck disable=SC2034  # Variable is referenced indirectly
 PYTHON_PYLINT_FILE_NAME="${PYTHON_PYLINT_CONFIG_FILE:-.python-lint}"
 # shellcheck disable=SC2034  # Variable is referenced indirectly
 R_FILE_NAME=".lintr"
@@ -147,7 +151,9 @@ SNAKEMAKE_SNAKEFMT_FILE_NAME="${SNAKEMAKE_SNAKEFMT_CONFIG_FILE:-.snakefmt.toml}"
 # shellcheck disable=SC2034  # Variable is referenced indirectly
 SUPPRESS_POSSUM="${SUPPRESS_POSSUM:-false}"
 # shellcheck disable=SC2034  # Variable is referenced indirectly
-SQL_FILE_NAME=".sql-config.json"
+# SSL_CERT_SECRET="${SSL_CERT_SECRET}"
+# shellcheck disable=SC2034  # Variable is referenced indirectly
+SQL_FILE_NAME="${SQL_CONFIG_FILE:-.sql-config.json}"
 # shellcheck disable=SC2034  # Variable is referenced indirectly
 TERRAFORM_FILE_NAME=".tflint.hcl"
 # shellcheck disable=SC2034  # Variable is referenced indirectly
@@ -180,11 +186,11 @@ fi
 ##################
 # Language array #
 ##################
-LANGUAGE_ARRAY=('ANSIBLE' 'ARM' 'BASH' 'BASH_EXEC' 'CLOUDFORMATION' 'CLOJURE' 'COFFEESCRIPT' 'CSHARP' 'CSS'
+LANGUAGE_ARRAY=('ANSIBLE' 'ARM' 'BASH' 'BASH_EXEC' 'CLOUDFORMATION' 'CLOJURE' 'COFFEESCRIPT' 'CPP' 'CSHARP' 'CSS'
   'DART' 'DOCKERFILE' 'DOCKERFILE_HADOLINT' 'EDITORCONFIG' 'ENV' 'GHERKIN' 'GO' 'GROOVY' 'HTML'
   'JAVA' 'JAVASCRIPT_ES' "${JAVASCRIPT_STYLE_NAME}" 'JSCPD' 'JSON' 'JSX' 'KUBERNETES_KUBEVAL' 'KOTLIN' 'LATEX' 'LUA' 'MARKDOWN'
   'OPENAPI' 'PERL' 'PHP_BUILTIN' 'PHP_PHPCS' 'PHP_PHPSTAN' 'PHP_PSALM' 'POWERSHELL'
-  'PROTOBUF' 'PYTHON_BLACK' 'PYTHON_PYLINT' 'PYTHON_FLAKE8' 'PYTHON_ISORT'
+  'PROTOBUF' 'PYTHON_BLACK' 'PYTHON_PYLINT' 'PYTHON_FLAKE8' 'PYTHON_ISORT' 'PYTHON_MYPY'
   'R' 'RAKU' 'RUBY' 'RUST_2015' 'RUST_2018' 'RUST_CLIPPY'
   'SHELL_SHFMT' 'SNAKEMAKE_LINT' 'SNAKEMAKE_SNAKEFMT' 'STATES' 'SQL'
   'TEKTON' 'TERRAFORM' 'TERRAFORM_TERRASCAN' 'TERRAGRUNT' 'TSX' 'TYPESCRIPT_ES' 'TYPESCRIPT_STANDARD' 'XML' 'YAML')
@@ -200,6 +206,7 @@ LINTER_NAMES_ARRAY['BASH_EXEC']="bash-exec"
 LINTER_NAMES_ARRAY['CLOJURE']="clj-kondo"
 LINTER_NAMES_ARRAY['CLOUDFORMATION']="cfn-lint"
 LINTER_NAMES_ARRAY['COFFEESCRIPT']="coffeelint"
+LINTER_NAMES_ARRAY['CPP']="cpplint"
 LINTER_NAMES_ARRAY['CSHARP']="dotnet-format"
 LINTER_NAMES_ARRAY['CSS']="stylelint"
 LINTER_NAMES_ARRAY['DART']="dart"
@@ -234,6 +241,7 @@ LINTER_NAMES_ARRAY['PYTHON_BLACK']="black"
 LINTER_NAMES_ARRAY['PYTHON_PYLINT']="pylint"
 LINTER_NAMES_ARRAY['PYTHON_FLAKE8']="flake8"
 LINTER_NAMES_ARRAY['PYTHON_ISORT']="isort"
+LINTER_NAMES_ARRAY['PYTHON_MYPY']="mypy"
 LINTER_NAMES_ARRAY['R']="R"
 LINTER_NAMES_ARRAY['RAKU']="raku"
 LINTER_NAMES_ARRAY['RUBY']="rubocop"
@@ -263,20 +271,20 @@ LINTED_LANGUAGES_ARRAY=() # Will be filled at run time with all languages that w
 ###################
 # GitHub ENV Vars #
 ###################
-ANSIBLE_DIRECTORY="${ANSIBLE_DIRECTORY}"         # Ansible Directory
-DEFAULT_BRANCH="${DEFAULT_BRANCH:-master}"       # Default Git Branch to use (master by default)
-DISABLE_ERRORS="${DISABLE_ERRORS}"               # Boolean to enable warning-only output without throwing errors
-FILTER_REGEX_INCLUDE="${FILTER_REGEX_INCLUDE}"   # RegExp defining which files will be processed by linters (all by default)
-FILTER_REGEX_EXCLUDE="${FILTER_REGEX_EXCLUDE}"   # RegExp defining which files will be excluded from linting (none by default)
-GITHUB_EVENT_PATH="${GITHUB_EVENT_PATH}"         # Github Event Path
-GITHUB_REPOSITORY="${GITHUB_REPOSITORY}"         # GitHub Org/Repo passed from system
-GITHUB_RUN_ID="${GITHUB_RUN_ID}"                 # GitHub RUn ID to point to logs
-GITHUB_SHA="${GITHUB_SHA}"                       # GitHub sha from the commit
-GITHUB_TOKEN="${GITHUB_TOKEN}"                   # GitHub Token passed from environment
-GITHUB_WORKSPACE="${GITHUB_WORKSPACE}"           # Github Workspace
-MULTI_STATUS="${MULTI_STATUS:-true}"             # Multiple status are created for each check ran
-TEST_CASE_RUN="${TEST_CASE_RUN}"                 # Boolean to validate only test cases
-VALIDATE_ALL_CODEBASE="${VALIDATE_ALL_CODEBASE}" # Boolean to validate all files
+# ANSIBLE_DIRECTORY="${ANSIBLE_DIRECTORY}"         # Ansible Directory
+MULTI_STATUS="${MULTI_STATUS:-true}"       # Multiple status are created for each check ran
+DEFAULT_BRANCH="${DEFAULT_BRANCH:-master}" # Default Git Branch to use (master by default)
+# DISABLE_ERRORS="${DISABLE_ERRORS}"               # Boolean to enable warning-only output without throwing errors
+# FILTER_REGEX_INCLUDE="${FILTER_REGEX_INCLUDE}"   # RegExp defining which files will be processed by linters (all by default)
+# FILTER_REGEX_EXCLUDE="${FILTER_REGEX_EXCLUDE}"   # RegExp defining which files will be excluded from linting (none by default)
+# GITHUB_EVENT_PATH="${GITHUB_EVENT_PATH}"         # Github Event Path
+# GITHUB_REPOSITORY="${GITHUB_REPOSITORY}"         # GitHub Org/Repo passed from system
+# GITHUB_RUN_ID="${GITHUB_RUN_ID}"                 # GitHub RUn ID to point to logs
+# GITHUB_SHA="${GITHUB_SHA}"                       # GitHub sha from the commit
+# GITHUB_TOKEN="${GITHUB_TOKEN}"                   # GitHub Token passed from environment
+# GITHUB_WORKSPACE="${GITHUB_WORKSPACE}"           # Github Workspace
+# TEST_CASE_RUN="${TEST_CASE_RUN}"                 # Boolean to validate only test cases
+# VALIDATE_ALL_CODEBASE="${VALIDATE_ALL_CODEBASE}" # Boolean to validate all files
 
 IGNORE_GITIGNORED_FILES="${IGNORE_GITIGNORED_FILES:-false}"
 
@@ -303,7 +311,7 @@ export TEST_CASE_FOLDER             # Workaround SC2034
 ##############
 # Format     #
 ##############
-OUTPUT_FORMAT="${OUTPUT_FORMAT}"                      # Output format to be generated. Default none
+# OUTPUT_FORMAT="${OUTPUT_FORMAT}"                    # Output format to be generated. Default none
 OUTPUT_FOLDER="${OUTPUT_FOLDER:-super-linter.report}" # Folder where the reports are generated. Default super-linter.report
 OUTPUT_DETAILS="${OUTPUT_DETAILS:-simpler}"           # What level of details. (simpler or detailed). Default simpler
 
@@ -314,22 +322,6 @@ for LANGUAGE in "${LANGUAGE_ARRAY[@]}"; do
   FILE_ARRAY_VARIABLE_NAME="FILE_ARRAY_${LANGUAGE}"
   debug "Setting ${FILE_ARRAY_VARIABLE_NAME} variable..."
   eval "${FILE_ARRAY_VARIABLE_NAME}=()"
-done
-
-#####################################
-# Validate we have linter installed #
-#####################################
-for LANGUAGE in "${LANGUAGE_ARRAY[@]}"; do
-  LINTER_NAME="${LINTER_NAMES_ARRAY["${LANGUAGE}"]}"
-  debug "Checking if linter with name ${LINTER_NAME} for the ${LANGUAGE} language is available..."
-
-  if ! command -v "${LINTER_NAME}" 1 &>/dev/null 2>&1; then
-    # Failed
-    fatal "Failed to find [${LINTER_NAME}] in system!"
-  else
-    # Success
-    debug "Successfully found binary for ${F[W]}[${LINTER_NAME}]${F[B]}."
-  fi
 done
 
 ################################################################################
@@ -785,6 +777,7 @@ LINTER_COMMANDS_ARRAY['BASH_EXEC']="bash-exec"
 LINTER_COMMANDS_ARRAY['CLOJURE']="clj-kondo --config ${CLOJURE_LINTER_RULES} --lint"
 LINTER_COMMANDS_ARRAY['CLOUDFORMATION']="cfn-lint --config-file ${CLOUDFORMATION_LINTER_RULES}"
 LINTER_COMMANDS_ARRAY['COFFEESCRIPT']="coffeelint -f ${COFFEESCRIPT_LINTER_RULES}"
+LINTER_COMMANDS_ARRAY['CPP']="cpplint"
 LINTER_COMMANDS_ARRAY['CSHARP']="dotnet-format --folder --check --exclude / --include"
 LINTER_COMMANDS_ARRAY['CSS']="stylelint --config ${CSS_LINTER_RULES}"
 LINTER_COMMANDS_ARRAY['DART']="dartanalyzer --fatal-infos --fatal-warnings --options ${DART_LINTER_RULES}"
@@ -827,6 +820,7 @@ LINTER_COMMANDS_ARRAY['PYTHON_BLACK']="black --config ${PYTHON_BLACK_LINTER_RULE
 LINTER_COMMANDS_ARRAY['PYTHON_PYLINT']="pylint --rcfile ${PYTHON_PYLINT_LINTER_RULES}"
 LINTER_COMMANDS_ARRAY['PYTHON_FLAKE8']="flake8 --config=${PYTHON_FLAKE8_LINTER_RULES}"
 LINTER_COMMANDS_ARRAY['PYTHON_ISORT']="isort --check --diff --sp ${PYTHON_ISORT_LINTER_RULES}"
+LINTER_COMMANDS_ARRAY['PYTHON_MYPY']="mypy --config-file ${PYTHON_MYPY_LINTER_RULES}"
 LINTER_COMMANDS_ARRAY['R']="lintr"
 LINTER_COMMANDS_ARRAY['RAKU']="raku"
 LINTER_COMMANDS_ARRAY['RUBY']="rubocop -c ${RUBY_LINTER_RULES} --force-exclusion"
@@ -840,8 +834,8 @@ LINTER_COMMANDS_ARRAY['STATES']="asl-validator --json-path"
 LINTER_COMMANDS_ARRAY['SQL']="sql-lint --config ${SQL_LINTER_RULES}"
 LINTER_COMMANDS_ARRAY['TEKTON']="tekton-lint"
 LINTER_COMMANDS_ARRAY['TERRAFORM']="tflint -c ${TERRAFORM_LINTER_RULES}"
-LINTER_COMMANDS_ARRAY['TERRAFORM_TERRASCAN']="terrascan scan -i terraform -t all -f "
-LINTER_COMMANDS_ARRAY['TERRAGRUNT']="terragrunt hclfmt --terragrunt-check --terragrunt-hclfmt-file "
+LINTER_COMMANDS_ARRAY['TERRAFORM_TERRASCAN']="terrascan scan -i terraform -t all -f"
+LINTER_COMMANDS_ARRAY['TERRAGRUNT']="terragrunt hclfmt --terragrunt-check --terragrunt-log-level error --terragrunt-hclfmt-file"
 LINTER_COMMANDS_ARRAY['TSX']="eslint --no-eslintrc -c ${TSX_LINTER_RULES}"
 LINTER_COMMANDS_ARRAY['TYPESCRIPT_ES']="eslint --no-eslintrc -c ${TYPESCRIPT_ES_LINTER_RULES}"
 LINTER_COMMANDS_ARRAY['TYPESCRIPT_STANDARD']="standard --parser @typescript-eslint/parser --plugin @typescript-eslint/eslint-plugin ${TYPESCRIPT_STANDARD_LINTER_RULES}"
@@ -854,6 +848,11 @@ for i in "${!LINTER_COMMANDS_ARRAY[@]}"; do
   debug "Linter key: $i, command: ${LINTER_COMMANDS_ARRAY[$i]}"
 done
 debug "---------------------------------------------"
+
+#################################
+# Check for SSL cert and update #
+#################################
+CheckSSLCert
 
 ###########################################
 # Build the list of files for each linter #
@@ -925,11 +924,6 @@ for LANGUAGE in "${LANGUAGE_ARRAY[@]}"; do
     LintCodebase "${LANGUAGE}" "${LINTER_NAME}" "${LINTER_COMMAND}" "${FILTER_REGEX_INCLUDE}" "${FILTER_REGEX_EXCLUDE}" "${TEST_CASE_RUN}" "${!LANGUAGE_FILE_ARRAY}"
   fi
 done
-
-###########
-# Reports #
-###########
-Reports
 
 ##########
 # Footer #

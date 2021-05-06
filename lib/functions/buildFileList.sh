@@ -100,7 +100,7 @@ function BuildFileList() {
       ################
       # push event   #
       ################
-      DIFF_TREE_CMD="git diff-tree --no-commit-id --name-only -r ${GITHUB_SHA}"
+      DIFF_TREE_CMD="git -C ${GITHUB_WORKSPACE} diff-tree --no-commit-id --name-only -r ${GITHUB_SHA}"
       GenerateFileDiff "$DIFF_TREE_CMD"
 
       ###############################################################
@@ -288,7 +288,19 @@ function BuildFileList() {
       # Append the file to the array #
       ################################
       FILE_ARRAY_CLOJURE+=("${FILE}")
-
+    #####################
+    # Get the C++ files #
+    #####################
+    elif [ "${FILE_TYPE}" == "cpp" ] || [ "${FILE_TYPE}" == "h" ] ||
+      [ "${FILE_TYPE}" == "cc" ] || [ "${FILE_TYPE}" == "hpp" ] ||
+      [ "${FILE_TYPE}" == "cxx" ] || [ "${FILE_TYPE}" == "cu" ] ||
+      [ "${FILE_TYPE}" == "hxx" ] || [ "${FILE_TYPE}" == "c++" ] ||
+      [ "${FILE_TYPE}" == "hh" ] || [ "${FILE_TYPE}" == "h++" ] ||
+      [ "${FILE_TYPE}" == "cuh" ] || [ "${FILE_TYPE}" == "c" ]; then
+      ################################
+      # Append the file to the array #
+      ################################
+      FILE_ARRAY_CPP+=("${FILE}")
     ########################
     # Get the COFFEE files #
     ########################
@@ -561,6 +573,7 @@ function BuildFileList() {
       FILE_ARRAY_PYTHON_FLAKE8+=("${FILE}")
       FILE_ARRAY_PYTHON_ISORT+=("${FILE}")
       FILE_ARRAY_PYTHON_PYLINT+=("${FILE}")
+      FILE_ARRAY_PYTHON_MYPY+=("${FILE}")
 
     ######################
     # Get the RAKU files #

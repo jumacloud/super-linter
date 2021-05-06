@@ -7,8 +7,6 @@
 ###########
 # Globals #
 ###########
-GITHUB_WORKSPACE="${GITHUB_WORKSPACE}"                                               # GitHub Workspace
-GITHUB_SHA="${GITHUB_SHA}"                                                           # Sha used to create this branch
 ((LOG_TRACE = LOG_DEBUG = LOG_VERBOSE = LOG_NOTICE = LOG_WARN = LOG_ERROR = "true")) # Enable all loging
 export LOG_TRACE LOG_DEBUG LOG_VERBOSE LOG_NOTICE LOG_WARN LOG_ERROR
 
@@ -78,7 +76,7 @@ CleanTestFiles() {
       ################################
       REMOVE_FILE_CMD=$(
         cd "${GITHUB_WORKSPACE}" || exit 1
-        rm -f "$FILE" 2>&1
+        sudo rm -f "$FILE" 2>&1
       )
 
       CheckShellErrors "ERROR! failed to remove file:[${FILE}]!" "ERROR:[${REMOVE_FILE_CMD[*]}]"
@@ -119,7 +117,7 @@ CleanTestDockerFiles() {
       ################################
       REMOVE_FILE_CMD=$(
         cd "${GITHUB_WORKSPACE}" || exit 1
-        rm -f "$FILE" 2>&1
+        sudo rm -f "$FILE" 2>&1
       )
 
       CheckShellErrors "ERROR! failed to remove file:[${FILE}]!" "ERROR:[${REMOVE_FILE_CMD[*]}]"
@@ -179,7 +177,7 @@ CleanPowershell() {
       ################################
       REMOVE_FILE_CMD=$(
         cd "${GITHUB_WORKSPACE}" || exit 1
-        rm -f "$FILE" 2>&1
+        sudo rm -f "$FILE" 2>&1
       )
 
       CheckShellErrors "ERROR! failed to remove file:[${FILE}]!" "ERROR:[${REMOVE_FILE_CMD[*]}]"
